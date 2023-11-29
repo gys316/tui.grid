@@ -490,7 +490,7 @@ class BodyAreaComp extends Component<Props> {
         <div class={cls('body-container')} style={containerStyle}>
           <div class={cls('table-container')} style={tableContainerStyle}>
             <table class={cls('table')}>
-              <ColGroup side={side} useViewport={true} />
+              <ColGroup side={side} useViewport={false} />
               <BodyRows side={side} />
             </table>
           </div>
