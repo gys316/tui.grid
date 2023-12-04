@@ -465,16 +465,19 @@ class BodyAreaComp extends Component<Props> {
       areaStyle.overflowY = 'hidden';
     }
     const tableContainerStyle = {
-      width: visibleTotalWidth,
+      width: totalColumnWidth + cellBorderWidth,
       top: offsetTop,
       left: offsetLeft,
       height: dummyRowCount ? bodyHeight - scrollXHeight : '',
       overflow: dummyRowCount ? 'hidden' : 'visible',
     };
     const containerStyle = {
-      width: totalColumnWidth + (side === 'R' ? 0 : cellBorderWidth),
+      width: totalColumnWidth + cellBorderWidth,
       height: totalRowHeight ? totalRowHeight + cellBorderWidth : '100%',
     };
+    console.log('visibleTotalWidth', visibleTotalWidth);
+    console.log('totalColumnWidth', totalColumnWidth);
+    console.log('cellBorderWidth', cellBorderWidth);
 
     return (
       <div
@@ -490,7 +493,7 @@ class BodyAreaComp extends Component<Props> {
         <div class={cls('body-container')} style={containerStyle}>
           <div class={cls('table-container')} style={tableContainerStyle}>
             <table class={cls('table')}>
-              <ColGroup side={side} useViewport={false} />
+              <ColGroup side={side} useViewport={true} />
               <BodyRows side={side} />
             </table>
           </div>

@@ -71,57 +71,34 @@ function getCachedRange(cachedRange: Range, newRange: Range) {
   return newRange;
 }
 
-export function create({
-  data,
-  column,
-  dimension,
-  rowCoords,
-  columnCoords,
-  showDummyRows,
-}: ViewportOption) {
+export function create({ data, column, dimension, rowCoords, showDummyRows }: ViewportOption) {
   return observable<Viewport>({
-    scrollLeft: 0,
     scrollTop: 0,
     scrollPixelScale: 40,
 
-    get maxScrollLeft() {
-      const { scrollbarWidth, cellBorderWidth } = dimension;
-      const { areaWidth, widths } = columnCoords;
-      let totalRWidth = 0;
-      widths.R.forEach((width) => {
-        totalRWidth += width + cellBorderWidth;
-      });
-
-      return totalRWidth - areaWidth.R + scrollbarWidth;
+    // 가로 스크롤 관련 상태 삭제
+    // scrollLeft: 0,
+    // maxScrollLeft: 0,
+    // 모든 컬럼 포함하는 범위 계산
+    get colRange() {
+      return [0, column.allColumns.length] as Range;
     },
 
+    // 모든 컬럼 반환
+    get columns() {
+      return column.allColumns;
+    },
+
+    // offsetLeft 삭제 또는 고정값으로 대체
+    // get offsetLeft() {
+    //   return 0;
+    // },
+    // 기존 로직 유지
     get maxScrollTop() {
       const { bodyHeight, scrollbarWidth } = dimension;
       const { totalRowHeight } = rowCoords;
 
       return totalRowHeight - bodyHeight + scrollbarWidth;
-    },
-
-    // only for right side columns
-    get colRange() {
-      const range = calculateRange({
-        scrollPos: this.scrollLeft,
-        totalSize: columnCoords.areaWidth.R,
-        offsets: columnCoords.offsets.R,
-        data,
-        column,
-      });
-
-      return getCachedRange(this.__storage__.colRange, range);
-    },
-
-    // only for right side columns
-    get columns() {
-      return column.visibleColumnsBySideWithRowHeader.R.slice(...this.colRange);
-    },
-
-    get offsetLeft() {
-      return columnCoords.offsets.R[this.colRange[0]];
     },
 
     get rowRange() {
@@ -145,6 +122,7 @@ export function create({
       return rowCoords.offsets[this.rowRange[0] - data.pageRowRange[0]];
     },
 
+    // 기존 로직 유지
     get dummyRowCount() {
       const { rowHeight, bodyHeight, scrollXHeight, cellBorderWidth } = dimension;
       const { totalRowHeight } = rowCoords;
@@ -157,5 +135,8 @@ export function create({
 
       return 0;
     },
+    scrollLeft: 0,
+    maxScrollLeft: 0,
+    offsetLeft: 0,
   });
 }
