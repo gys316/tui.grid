@@ -4,6 +4,7 @@ import { SelectionRange } from '../store/selection';
 import { Filter, FilterOptionType, FilterState, OperatorType } from '../store/filterLayerState';
 import { ResizedColumn } from '../store/column';
 import { ExportFormat, OptExport } from '../store/export';
+import { Merge } from 'src/dispatch/export';
 
 export type TargetType = 'rowHeader' | 'columnHeader' | 'dummy' | 'cell' | 'etc';
 export interface CellChange {
@@ -52,6 +53,7 @@ export interface GridEventProps {
   data?: string[][];
   complexHeaderData?: string[][] | null;
   exportFn?: (data: string[][]) => void;
+  merges?: Merge[] | null;
 }
 
 export class TuiGridEvent {

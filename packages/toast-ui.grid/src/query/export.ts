@@ -10,6 +10,7 @@ import GridEvent from '../event/gridEvent';
 import { convertHierarchyToData, getComplexColumnsHierarchy } from './column';
 import { createFormattedValue } from '../store/helper/data';
 import { Dictionary } from '@t/options';
+import { Merge } from 'src/dispatch/export';
 
 export type EventType = 'beforeExport' | 'afterExport';
 
@@ -19,6 +20,7 @@ export interface EventParams {
   data: string[][];
   exportFn?: (data: string[][]) => void;
   complexHeaderData: string[][] | null;
+  merges?: Merge[] | null;
 }
 
 function getColumnInfoDictionary(store: Store, columnNames: string[]) {
@@ -53,7 +55,7 @@ function getValue(
 }
 
 export function createExportEvent(eventType: EventType, eventParams: EventParams) {
-  const { exportFormat, exportOptions, data, complexHeaderData, exportFn } = eventParams;
+  const { exportFormat, exportOptions, data, complexHeaderData, exportFn, merges } = eventParams;
   let props: GridEventProps = {};
 
   switch (eventType) {
@@ -94,7 +96,7 @@ export function createExportEvent(eventType: EventType, eventParams: EventParams
      * @property {Grid} instance - Current grid instance
      */
     case 'afterExport':
-      props = { exportFormat, exportOptions, data, complexHeaderData };
+      props = { exportFormat, exportOptions, data, complexHeaderData, merges };
       break;
     default: // do nothing
   }

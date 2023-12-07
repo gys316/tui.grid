@@ -13,7 +13,7 @@ import {
 import { getEventBus } from '../event/eventBus';
 import { downloadBlob } from '../helper/browser';
 
-interface Merge {
+export interface Merge {
   // The interface of xlsx library.
   // s: start, e: end, r: row, c: column
   s: {
@@ -151,6 +151,18 @@ function exportExcel(
   XLSX.writeFile(wb, `${fileName}.${format}`);
 }
 
+function exportExcelRaw(targetArray: string[][], complexColumnHeaderData: string[][] | null) {
+  let merges = null;
+  if (complexColumnHeaderData) {
+    merges = getMergeRelationship(complexColumnHeaderData);
+  }
+
+  return {
+    targetArray,
+    merges,
+  };
+}
+
 function exportCallback(
   data: string[][],
   format: ExportFormat,
@@ -177,13 +189,10 @@ function exportCallback(
 }
 
 export function execExport(store: Store, format: ExportFormat, options?: OptExport) {
-  const {
-    data,
-    columnHeaders,
-    columnNames,
-    exportOptions,
-    excelCompatibilityMode,
-  } = getExportDataAndColumnsAndOptions(store, options);
+  const { data, columnHeaders, columnNames, exportOptions } = getExportDataAndColumnsAndOptions(
+    store,
+    options
+  );
   const { includeHeader, delimiter, fileName } = exportOptions;
   const { column } = store;
 
@@ -225,18 +234,31 @@ export function execExport(store: Store, format: ExportFormat, options?: OptExpo
     return;
   }
 
+  let excelRaw: {
+    targetArray: string[][];
+    merges: Merge[] | null;
+  } = {
+    targetArray: [[]],
+    merges: null,
+  };
+
+  const temp: string[][] | null = JSON.parse(JSON.stringify(complexHeaderData));
+
   if (format === 'xlsx' || format === 'xls') {
-    exportExcel(excelCompatibilityMode ? 'xls' : format, fileName, targetData, complexHeaderData);
+    excelRaw = exportExcelRaw(targetData, complexHeaderData);
   } else {
     const targetText = convertDataToText(targetData, delimiter);
 
     exportText(format, fileName, targetText);
   }
 
+  const { targetArray, merges } = excelRaw;
+
   emitExportEvent(store, 'afterExport', {
     exportFormat: format,
     exportOptions,
-    data: targetData,
-    complexHeaderData,
+    data: targetArray,
+    merges,
+    complexHeaderData: temp,
   });
 }
